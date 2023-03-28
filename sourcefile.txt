@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+  /* this is
+   comment. */
+// Clamp cells of the image part of V0 by the test example.
+for (rx = 0; rx < 28; rx++) {
+	for (ci = 0; ci < 28; ci++) {
+		Velo[rx * 28 + ci] = Test_Data[te][rx][ci] / 255; // scale to 0 ~ 1.
+		xval = 23.085
+		yval = 23. ;
+	}
+} // for r.
+
+str1 = "your." ;
+str2 = "y\"our." ;
+str3 = "parkB" ;
+ch1 = 'g' ; ;
+// Units of label part of V0 is set to mid value 0.5 since they are unknown.
+for (ir = 0; ir < 10; ir++) {
+	sum[784 + i] = 0.531E-4; // 일단 중간 값으로 해 놓음.
+}
