@@ -1,0 +1,13 @@
+// 산술식,  left recursion is removed. Grammar definition must start at the 3rd line.
+
+E   E'   T   T'   F
++  *  (  )  id  $
+
+E -> T E'
+E' -> epsilon
+E' -> + T  E'
+T ->  F  T'
+T' -> epsilon
+T' -> * F T'
+F -> ( E )
+F -> id

@@ -1,0 +1,17 @@
+// grammar with case-2
+
+S A B C D
+a b c d h $
+
+S -> A B D
+S -> d C
+A -> epsilon
+A -> a C
+B -> epsilon
+B -> C D
+B -> b D
+C -> epsilon
+C -> S d
+C -> c
+D -> epsilon
+D -> h

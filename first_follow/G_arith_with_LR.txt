@@ -1,0 +1,13 @@
+// 산술식, with left recursion
+
+E   T    F
++   -   *   /   (   )   num   $
+
+E -> T
+E -> E + T
+E -> E - T
+T -> F
+T -> T * F
+T -> T / F
+F -> num
+F -> ( E )

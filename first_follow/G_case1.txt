@@ -1,0 +1,18 @@
+//
+
+S A B C D
+a   b   c   d   h   k   $
+
+S -> A B D 
+S -> a C
+A -> D 
+A -> D C A k 
+A -> A a C 
+B -> epsilon
+B -> C D
+B -> b D
+C -> epsilon
+C -> c
+C -> C d 
+D -> epsilon
+D -> h

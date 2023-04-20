@@ -1,0 +1,14 @@
+// grammar has case-1 and 2
+
+S A B C
+a b c d f $
+
+S -> A B f
+A -> epsilon
+A -> a C A d
+A -> A f
+B -> b
+B -> C S
+B -> B a
+C -> epsilon
+C -> c

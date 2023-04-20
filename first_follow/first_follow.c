@@ -1,4 +1,4 @@
-// ??????? ??? ???��??:  first, follow ?????.
+// 컴파일러 실습 프로그램:  first, follow 구하기.
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
@@ -16,10 +16,10 @@ typedef struct ssym {
 } sym ;  // definition symbols
 
 // Rules are represented as follows
-typedef struct orule {  // rule ?? ???? ????.
+typedef struct orule {  // rule 한 개의 정의.
     sym leftside ;
     sym rightside [Max_string_of_RHS] ;
-    int  rleng ;  // RHS ?? ????? ??.  0 is given if righthand side is epsilon.
+    int  rleng ;  // RHS 의 심볼의 수.  0 is given if righthand side is epsilon.
 } onerule ;
 
 typedef struct {
@@ -31,26 +31,27 @@ int Max_nonterminal;
 sym Nonterminals_list [Max_symbols];
 sym Terminals_list [Max_symbols];
 
-int Max_rules;  // ???? ?? ?????? ??????.
-onerule Rules[Max_size_rule_table];	// ?? ???? ??????.
+int Max_rules;  // 룰의 총 갯수를 가진다.
+onerule Rules[Max_size_rule_table];	// 룰 들을 가진다.
 
 int First_table[Max_symbols][Max_symbols]; // actual region:  Max_nonterminal  X (MaxTerminals+2)
 int Follow_table[Max_symbols][Max_symbols]; // actual region:  Max_nonterminal  X (MaxTerminals+1)
-int done_first[Max_symbols];	// ????????? first ??? ??? ?��???
-int done_follow[Max_symbols];  // ????????? follow ??? ??? ?��???
+int done_first[Max_symbols];	// 비단말기호의 first 계산 완료 플래그
+int done_follow[Max_symbols];  // 비단말기호의 follow 계산 완료 플래그
 
 type_recompute recompute_list[500];    // recompute_list point list
 int num_recompute; // number of recompute_list points in recompute_list.
 type_recompute a_recompute;
 
-int ch_stack[100] = { -1, }; //call history stack. -1 ?? ???? ??. ???? ????? ???????.
+int ch_stack[100] = { -1, }; //call history stack. -1 은 더미 값. 초기화 안해도 상관없다.
 int top_stack = -1;
 
 int lookUp_nonterminal( char *str) {
 	int i ;
-	for (i = 0; i < Max_nonterminal; i++ )
+	for (i = 0; i < Max_nonterminal; i++ ) {
 		if (strcmp(str, Nonterminals_list[i].str) == 0)
 			return i;
+	}
 	return -1;
 }
 
@@ -62,7 +63,7 @@ int lookUp_terminal(char *str) {
 	return -1;
 }
 
-// ???????? ???? grammar ???? ?????? ???? ??? ??????.
+// 입력파일에 넣을 grammar 정보 내용은 강의 중에 설명함.
 void read_grammar(char *fileName) {
 	FILE *fp;
 	char line[500]; // line buffer
@@ -228,72 +229,72 @@ void first (sym X) {              // assume X is a nonterminal.
 			continue; // skip this rule since left side is not X.
 		rleng = Rules[r].rleng;
 		if (rleng == 0) {
-			First_table[X.no][Max_terminal] = 1; // ?????? first ??  ???.
-			continue;  // ???? ??? ????.
+			First_table[X.no][Max_terminal] = 1; // 입실론을 first 에  추가.
+			continue;  // 다음 룰로 간다.
 		}
 
 		for (i = 0; i < rleng; i++) {
-			Yi = Rules[r].rightside[i];	// Yi ?? ???? ???????? ??? i ?? ???
+			Yi = Rules[r].rightside[i];	// Yi 는 룰의 우측편의 위치 i 의 심볼
 			if (Yi.kind == 0) {	// Yi is terminal
-				First_table [X.no][Yi.no] = ~~ERASED~~;	// Yi?? X?? first ?? ???.
+				First_table [X.no][Yi.no] = 1;	// Yi를 X의 first 로 추가.
 				break;	// exit this loop to go to next rule.
 			}
 			// Now, Yi is nonterminal.
-			if (X.no == Yi.no) {	// case-1 ?????.
+			if (X.no == Yi.no) {	// case-1 발생함.
 				printf("Case 1  has occurred: rule: %d, position of RHS:%d\n", r, i);
-				if (First_table[X.no][~~ERASED~~] == 1) {
-					continue;  // epsilon ?? first of X ?? ??????? Yi ???????? ?????? ??.
+				if (First_table[X.no][Max_terminal] == 1) {
+					continue;  // epsilon 이 first of X 에 있으므로 Yi 우측편을 처리하게 함.
 				}
 				else
-					break; // epsilon ?? first of X ?? ??????? Yi?? ?????? ??????? ???? ??? ????.
+					break; // epsilon 이 first of X 에 없으므로 Yi의 우측은 무시하고 다음 룰로 간다.
 			}
 
-			if (done_first[Yi.no] == 1) {	// Yi ?? first ????? ??? ??????.
-				if (is_nonterminal_in_recompute_list(Yi.no)) {	// Yi ?? ?��???? ???????? ???????,
+			if (done_first[Yi.no] == 1) {	// Yi 의 first 계산을 이미 마쳤음.
+				if (is_nonterminal_in_recompute_list(Yi.no)) {	// Yi 가 좌심볼인 재계산점이 존재하면,
 					a_recompute.r = r; a_recompute.X = X.no; a_recompute.i = i; a_recompute.Yi = Yi.no;
-					recompute_list[num_recompute] = a_recompute;	// ?????? [r,X,i,Yi] ?? ??��?.
+					recompute_list[num_recompute] = a_recompute;	// 재계산점 [r,X,i,Yi] 를 넣는다.
 					num_recompute++;
-					printf("?????? ???:[%d,%s,%d,%s]\n", r, Nonterminals_list[X.no].str, i, Nonterminals_list[Yi.no].str);
+					printf("재계산점 추가:[%d,%s,%d,%s]\n", r, Nonterminals_list[X.no].str, i, Nonterminals_list[Yi.no].str);
 				}
 			}
-			else {	// done of Yi == 0???. ?? Yi ?? first ????? ???? ??????.
-				if (nonterminal_is_in_stack(Yi.no)) {	// Yi ?? ch_stack ?? ????
+			else {	// done of Yi == 0이다. 즉 Yi 의 first 계산은 아직 안했음.
+				if (nonterminal_is_in_stack(Yi.no)) {	// Yi 가 ch_stack 에 있다면
 					a_recompute.r = r; a_recompute.X = X.no; a_recompute.i = i; a_recompute.Yi = Yi.no;
-					recompute_list[~~ERASED~~] = a_recompute;	// ?????? [r,X,i,Yi] ?? ??��?.
+					recompute_list[num_recompute] = a_recompute;	// 재계산점 [r,X,i,Yi] 를 넣는다.
 					num_recompute++;
-					printf("?????? ???:[%d,%s,%d,%s]\n", r, Nonterminals_list[X.no].str, i, Nonterminals_list[Yi.no].str);
+					printf("재계산점 추가:[%d,%s,%d,%s]\n", r, Nonterminals_list[X.no].str, i, Nonterminals_list[Yi.no].str);
 				}
-				else {	// Yi ?? ch_stack ?? ????.
-					first(Yi);	// Yi ?? first ?? ?????? First_table ?? ?????.
-					if (is_nonterminal_in_recompute_list(~~ERASED~~)) {	// Yi?? ?��???? ???????? ????,
+				else {	// Yi 가 ch_stack 에 없다.
+					first(Yi);	// Yi 의 first 를 계산하여 First_table 에 등록함.
+					if (is_nonterminal_in_recompute_list(Yi.no)) {	// Yi가 좌심볼인 재계산점이 있다면,
 						a_recompute.r = r; a_recompute.X = X.no; a_recompute.i = i; a_recompute.Yi = Yi.no;
-						recompute_list[num_recompute] = a_recompute;	// ?????? [r,X,i,Yi] ?? ??��?.
+						recompute_list[num_recompute] = a_recompute;	// 재계산점 [r,X,i,Yi] 를 넣는다.
 						num_recompute++;
-						printf("?????? ???:[%d,%s,%d,%s]\n", r,Nonterminals_list[X.no].str,i, Nonterminals_list[Yi.no].str);
+						printf("재계산점 추가:[%d,%s,%d,%s]\n", r,Nonterminals_list[X.no].str,i, Nonterminals_list[Yi.no].str);
 					}
 				}  // else
 			} // else
-			// Yi ?? first ?? ???? ??? epsilon ?? ??? ????? first_X ?? ??????.
+			// Yi 의 first 의 원소 중에 epsilon 이 아닌 것들을 first_X 에 넣어준다.
 			int n;
 			for (n = 0; n < Max_terminal; n++) {
-				if (First_table[Yi.no][~~ERASED~~] == 1)
+				if (First_table[Yi.no][n] == 1)
 					First_table[X.no][n] = 1;
 			}
-			// epsilon?? Yi ?? first ?? ????? ???? ??? ????. ???? Yi ?? ???? ?? ????? ????.
+			// epsilon이 Yi 의 first 에 없다면 다음 룰로 간다. 있다면 Yi 의 우측 편 심볼로 간다.
 			if (First_table[Yi.no][Max_terminal] == 0)
 				break;
 		} // for (i=0
-		// break ?? ???????? ????? ?��?? i != rleng ???. ????? ???? i==rleng ???,
-		// ?? ???? r ????? ???????? ??? ????? first ?? epsilon?? ??????. ???? X ?? ?????? ???.
+		// break 의 수행으로 여기로 온다면 i != rleng 이다. 그렇지 않다면 i==rleng 이고,
+		// 이 말은 r 규칙의 우측편의 모든 심볼의 first 가 epsilon을 가진다. 고로 X 도 가져야 한다.
 		if (i == rleng)
-			First_table[X.no][Max_terminal] = ~~ERASED~~;  // X ?? first ?? epsilon?? ?????? ???.
+			First_table[X.no][Max_terminal] = 1;  // X 의 first 가 epsilon을 가지게 한다.
 	} // for (r=0
 
-	done_first[X.no] = 1;  // X ?? done (first ?????)?? 1 ?? ???.
+	done_first[X.no] = 1;  // X 의 done (first 계산완료)을 1 로 한다.
 
 	// pop stack.
-	ch_stack[top_stack] = -1;  // dummy ???? ??��?. ??? ?? ???? ????? ??!
-	top_stack--;  // ?? ???? ?????? pop ?? ??? ????.
+	ch_stack[top_stack] = -1;  // dummy 값을 넣는다. 사실 이 줄은 안해도 됨!
+	top_stack--;  // 이 줄이 실제로 pop 을 하는 것임.
 } // end of first
 
 // alpha is an arbitrary string of terminals or nonterminals.
@@ -313,7 +314,7 @@ void first_of_string(sym alpha[], int length, int first_result[]) {
 			first_result[Yi.no] = 1;
 			break;
 		}
-		else {  // ???? ???? Yi ?? ??????????.
+		else {  // 여기 오면 Yi 는 비단말기호이다.
 			for (k = 0; k < Max_terminal; k++)	 // copy first of Yi to first of alpha
 				if (First_table[Yi.no][k] == 1) first_result[k] = 1;
 			if (First_table[Yi.no][Max_terminal] == 0)
@@ -321,33 +322,33 @@ void first_of_string(sym alpha[], int length, int first_result[]) {
 		}
 	} // for
 	if (i == length)
-		first_result[Max_terminal] = 1;  // epsilon ?? ??��?.
+		first_result[Max_terminal] = 1;  // epsilon 을 넣는다.
 } // end of function first_of_string
 
-// ??? ????????? first ?? ?????. (?????? ????? ??????? case-2???? ?????.)
+// 모든 비단말기호의 first 를 구한다. (재계산점 처리도 수행하여 case-2까지 처리함.)
 void first_all() {
 	int i, j, r, m, A, k, n, Xno;
 	sym X, Y;
 
-	// ???? ??? ??????????? first ?? ????? First_table ?? ??????.
+	// 먼저 모든 비단말기호들의 first 를 구하여 First_table 에 기록한다.
 	for (i = 0; i < Max_nonterminal; i++) {
 		X = Nonterminals_list[i];
-		if (done_first[i] == 0) { // ???? ?? ????????? ??????? ????.
-			top_stack = -1; // ?????? ??? ??. (?? ???? ????? ????? ??.)
+		if (done_first[i] == 0) { // 아직 이 비단말기호를 처리하지 않음.
+			top_stack = -1; // 스택을 비워 줌. (이 줄은 사실은 안해도 됨.)
 			first(X);
 		}
 		if (top_stack != -1) {
 			printf("Logic error. stack top should be -1.\n");
-			getchar();  // ??? ????? ??.
+			getchar();  // 일단 멈추게 함.
 		}
 	} // for
 
-	// ?????? ???
+	// 재계산점 처리
 	int change_occurred;
 	type_recompute recom;
 
 	while (1) {
-		// ???? ??? ?? ??, ??? ?????????? ??????.
+		// 루프 한번 돌 때, 모든 재계산점들을 처리한다.
 		change_occurred = 0;
 		for (m = 0; m < num_recompute; m++) {
 			recom = recompute_list[m];
@@ -355,15 +356,15 @@ void first_all() {
 			k = Rules[r].rleng;
 			for (j = i; j < k; j++) {
 				Y = Rules[r].rightside[j];
-				if (Y.kind == 0) {  // ?????????,
+				if (Y.kind == 0) {  // 단말기호이면,
 					if (First_table[Xno][Y.no] == 0) {
 						change_occurred = 1;
 						printf("%s is added to first of %s in recomputing\n", Y.str, Nonterminals_list[Xno].str);
 					}
 					First_table[Xno][Y.no] = 1;
-					break;  // ??? r ?? ??? ???????, ???? ?????????? ????.
+					break;  // 규칙 r 의 처리 종료하고, 다음 재계산점으로 간다.
 				}
-				// ???? ???? Y?? ?????????. Y ?? first ?? ??? X ?? first?? ??????(???? ????).
+				// 여기 오면 Y는 비단말기호임. Y 의 first 를 모두 X 의 first로 등록한다(입실론 제외).
 				for (n = 0; n < Max_terminal; n++) {
 					if (First_table[Y.no][n] == 1) {
 						if (First_table[Xno][n] == 0) {
@@ -373,19 +374,19 @@ void first_all() {
 						First_table[Xno][n] = 1;
 					}  // if
 				}  // for(n=0
-				if (First_table[Y.no][Max_terminal] == 0)	// Y ?? first ?? ?????? ?????,
-					break;  // Y ?????? ????.
+				if (First_table[Y.no][Max_terminal] == 0)	// Y 의 first 에 입실론이 없다면,
+					break;  // Y 우측은 무시.
 			} // for (j=i
-			if (j == k) {  // ????? ?????, ???? ?????? ??? ????? ?????? ????.
+			if (j == k) {  // 이것이 참이면, 룰의 우측의 모든 심볼이 입실론을 가짐.
 				if (First_table[Xno][Max_terminal] == 0) {
 					change_occurred = 1;
 					printf("epsilon is added to first of %s in recomputing\n", Nonterminals_list[Xno].str);
 				}
-				First_table[~~ERASED~~][Max_terminal] = 1;  // ?????? ??? ??.
+				First_table[Xno][Max_terminal] = 1;  // 입실론을 넣어 줌.
 			} // if
 		} // for (m=0
 		if (change_occurred == 0)
-			break;	// ?????? ??????? ???? ????? ??????.
+			break;	// 재계산점 처리에서 전혀 변화가 없었음.
 	} // while
 } // end of first_all
 
@@ -421,10 +422,10 @@ int follow_nonterminal ( int X ) {
               {    if ( Rules[i].leftside.no == X )
 						continue ; // left symbol of this rule == X. So no need of addition.
                    if ( Follow_table[leftsym][Max_terminal] == 0 ) // the follow set of the left sym of rule i was not computed.
-                        follow_nonterminal (~~ERASED~~) ;		// compute it.
+                        follow_nonterminal (leftsym) ;		// compute it.
                    for ( k=0; k < Max_terminal; k++) // add follow terminals of left side symbol to follow of X (without epsil).
                        if (Follow_table[leftsym][k] == 1 )
-						   Follow_table[~~ERASED~~][k] = 1 ;
+						   Follow_table[X][k] = 1 ;
                }
        } // end of for j=0.
    } // end of for i
@@ -438,11 +439,11 @@ int main()
 	int i, j;
 	sym a_nonterminal = { 1, 0 };
 
-	//read_grammar("G_arith_no_LR.txt");
+	// read_grammar("G_arith_no_LR.txt");
 	//read_grammar("G_arith_with_LR.txt");
 	//read_grammar("G_case1.txt");
-	//read_grammar("G_case2.txt");
-	read_grammar("G_simple_case2.txt");
+	read_grammar("G_case2.txt");
+	// read_grammar("G_simple_case2.txt");
 
 	//strcpy(Terminals_list[Max_terminal].str, "eps"); // epsilon
 
@@ -462,9 +463,9 @@ int main()
 		done_follow[i] = 0;
 	}
 
-	num_recompute = 0;  // ?????? ??????? ??? ???��?.
+	num_recompute = 0;  // 재계산점 리스트를 비워 놓는다.
 
-	// ??? ????????? ????? first ?? ??????.
+	// 모든 비단말기호에 대하여 first 를 계산한다.
 	first_all();
 
 	// Print first of all nonterminals.
