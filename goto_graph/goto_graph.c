@@ -4,7 +4,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include <Windows.h>  //gotoxy() 함수를 사용하기 위한 헤더
 
 #define Max_symbols			200  // Number of terminals and nonterminals must be smaller than this number.
 #define Max_size_rule_table		100  //  actual number of rules must be smaller than this number.
@@ -103,7 +102,7 @@ int		find_arc_in_arc_list(ty_ptr_arc_node arc_list, int from_id, sym symbal);
 void	fitemListPrint(ty_ptr_item_node IS, FILE* fpw);
 int		follow_nonterminal(int idx_NT);
 ty_ptr_item_node	getLastItem(ty_ptr_item_node it_list);
-sym		get_next_token(FILE* fps);
+// sym		get_next_token(FILE* fps);
 ty_ptr_item_node	goto_function(ty_ptr_item_node IS, sym sym_val);
 int is_item_in_itemlist(ty_ptr_item_node item_list, ty_ptr_item_node item);
 int is_nonterminal_in_stoplist(int Y);
@@ -159,19 +158,19 @@ int iswhitespace(char c){
 		return 0;
 }
 
-// get the next terminal from the source program file by calling the lexical analyzer lexan.
-sym get_next_token(FILE * fps)  {
-	sym a_terminal_sym;
-	tokentype a_tok; // the token produced by the  lexical analyer we developed before.
-	a_tok = lexan_mini_grammar (fps);
-	a_terminal_sym.kind = 0;  // this is a terminal symbol
+// // get the next terminal from the source program file by calling the lexical analyzer lexan.
+// sym get_next_token(FILE * fps)  {
+// 	sym a_terminal_sym;
+// 	tokentype a_tok; // the token produced by the  lexical analyer we developed before.
+// 	a_tok = lexan_mini_grammar (fps);
+// 	a_terminal_sym.kind = 0;  // this is a terminal symbol
 
-	a_terminal_sym.no = a_tok.kind;	// 단말기호 고유번호
-	// small grammar 의 경우 source program 이 단말기호의 이름을 그대로 이용함.
-	strcpy(a_terminal_sym.str, a_tok.str);
+// 	a_terminal_sym.no = a_tok.kind;	// 단말기호 고유번호
+// 	// small grammar 의 경우 source program 이 단말기호의 이름을 그대로 이용함.
+// 	strcpy(a_terminal_sym.str, a_tok.str);
 
-	return a_terminal_sym;
-} // get_next_token
+// 	return a_terminal_sym;
+// } // get_next_token
 
 
 // state node 하나를 할당 받아서 이에 대한 포인터를 반환함.
@@ -373,7 +372,7 @@ void	make_goto_graph(ty_ptr_item_node IS_0){
 				sym_temp.kind = i_0;	// 단말, 비단말 여부
 				sym_temp.no   = i_1;	// symbol 의 고유번호
 				// 현재 스테이트에서 문법심볼 sym_temp 에 의해 goto 할 아이템 리스트를 알아 옴.
-				To_item_list = goto_function(~~ERASED~~, sym_temp);  // goto 함수로 goto 결과를 알아 옴.
+				To_item_list = goto_function(next_state->first_item, sym_temp);  // goto 함수로 goto 결과를 알아 옴.
 
 				if(To_item_list){ // To_item_list 가 empty 가 아니면, 이를 새 state 로 추가.
 					//  To_item_list 를 새로운 state 로 등록한다 (단, 동일한 것이 존재하지 않는 경우에만).
@@ -381,7 +380,7 @@ void	make_goto_graph(ty_ptr_item_node IS_0){
 					to_state = add_a_state_node_if_it_does_not_exist(State_Node_List_Header, To_item_list);
 
 					// [next_state, to_state, sym_temp] 아크가 이미 존재하지 않으면 새로운 아크로 추가함.
-					add_arc_if_it_does_not_exist (&Arc_List_Header, next_state->id, to_state->~~ERASED~~, sym_temp);
+					add_arc_if_it_does_not_exist (&Arc_List_Header, next_state->id, to_state->id, sym_temp);
 				} // if : To_item_list
 			} // for : i_1 : 모든 기호에 대하여 goto 를 수행
 		} // for : i_0 : 단말기호 → 비단말기호
@@ -420,7 +419,7 @@ void	printGotoGraph(ty_ptr_goto_graph gsp){
 	while(State_Node_List_Header){
 		fprintf(fpw, "ID[%2d] (%3d) : ", State_Node_List_Header->id, State_Node_List_Header->item_cnt);
 		fitemListPrint(State_Node_List_Header->first_item, fpw);
-		State_Node_List_Header = State_Node_List_Header->~~ERASED~~;
+		State_Node_List_Header = State_Node_List_Header->next;
 	} // while : State_Node_List_Header
 	printf("\nTotal number of states = %d\n", total_num_states);
 	fprintf(fpw, "Total number of states = %d\n", total_num_states);
@@ -706,7 +705,7 @@ ty_ptr_item_node closure(ty_ptr_item_node IS) {
 	while (curr){
 		// curr 노드의 rule 번호
 		r_num = curr->RuleNum;
-		d_num = curr->~~ERASED~~;
+		d_num = curr->DotNum;
 
 		// SymAfterDot : type.sym { int kind / int no }
 		if (d_num >= rules[r_num].rleng) {	// dot 다음에 아무 심볼도 없는 경우.
@@ -723,7 +722,7 @@ ty_ptr_item_node closure(ty_ptr_item_node IS) {
 		// SymAfterDot 이 비단말기호이다. SymAfterDot 을 좌측심볼로 가지는 룰마다 아이템을 추가한다.
 		for (i_0 = 0; i_0 < Max_rules; i_0++) {
 			// 룰 i_0 의 좌측 심볼이 SymAfterDot 이 아니면 이 룰은 무시한다.
-			if (rules[i_0].leftside.no != ~~ERASED~~)
+			if (rules[i_0].leftside.no != SymAfterDot.no)
 				continue;
 
 			// item node 하나를 만든다.
@@ -771,7 +770,7 @@ ty_ptr_item_node	goto_function( ty_ptr_item_node IS, sym sym_val ){
 			continue ;
 		}
 
-		SymAfterDot = rules[r_num].rightside[~~ERASED~~];  // dot 바로 뒤 심볼.
+		SymAfterDot = rules[r_num].rightside[d_num];  // dot 바로 뒤 심볼.
 
 		// 점 다음의 심볼과 goto할 심볼이 다르면 다음 아이템으로 넘어 감.
 		if (!(SymAfterDot.kind == sym_val.kind && SymAfterDot.no == sym_val.no) ) 	{
@@ -802,7 +801,7 @@ ty_ptr_item_node	goto_function( ty_ptr_item_node IS, sym sym_val ){
 			temp_item->link = New_Item;		// 마지막 item 이 되도록 붙인다.
 		} // if
 
-		curr_item = ~~ERASED~~;
+		curr_item = curr_item->link;
 	} // while
 
 	if (Go_To_Result_List)
@@ -1052,7 +1051,7 @@ int main()
 
 	//read_grammar("G_arith_no_LR.txt");
 	//read_grammar("G_arith_with_LR.txt");
-	//strcpy(grammar_file_name, "Grammar_data.txt");
+	strcpy(grammar_file_name, "Grammar_data.txt");
 	//strcpy(grammar_file_name, "G_arith_with_LR.txt");
 	//strcpy(grammar_file_name, "G_arith_no_LR.txt");
 	//strcpy(grammar_file_name, "G_case1.txt");
