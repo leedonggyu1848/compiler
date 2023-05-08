@@ -24,7 +24,7 @@ typedef struct ssym {
 	 int kind ; // 단말/비단말 여부. (0:단말기호, 1:비단말기호)
 	 int no ; // 단말, 비단말 각 경우에서 심볼의 번호.
 	 char str[30]; // 단말기호의 경우 get_next_token 함수가 lexan 한테 받은 token의 표층 스트링을 여기에 저장함.
-} sym ;  // 문법심볼 정의 
+} sym ;  // 문법심볼 정의
 
 // 룰 하나를 나타내는 구조체.
 typedef struct struc_rule {  // rule 한 개의 정의.
@@ -56,8 +56,8 @@ typedef struct struc_state_node {
 
 typedef struct struc_arc_node* ty_ptr_arc_node;
 typedef struct struc_arc_node {
-	int		from_state;	
-	int		to_state;	
+	int		from_state;
+	int		to_state;
 	sym		symbol;
 	ty_ptr_arc_node	link;
 } ty_arc_node;
@@ -70,25 +70,25 @@ typedef struct struc_goto_graph {
 } ty_goto_graph;
 
 typedef struct cell_action_tbl {
-	char Kind ; // s, r, a, e 중 한 글자 / 
+	char Kind ; // s, r, a, e 중 한 글자 /
 	int num ;	// s 이면 스테이트 번호, r 이면 룰 번호를 나타냄.
 } ty_cell_action_table ;
 
 // 파스트리 노드 정의. 노드는 문법심볼을 가짐. 그런데, 이 노드는 LR stack 에도 넣음.
 // 그런데 LR stack 에는 state 번호도 들어가야 함. 그래서 node 가 문법심볼과 state 를 넣는 2 가지 용도로 사용함.
 typedef struct struc_tree_node* ty_ptr_tree_node;
-typedef struct struc_tree_node { // 
+typedef struct struc_tree_node { //
 	sym	nodesym;	// 단말 기호나 비단말 기호를 저장.
 	int	child_cnt;	// number of children
 	ty_ptr_tree_node	children[10]; // 자식 노드들에 대한 포인터.
 	int rule_no_used; // 비단말기호 노드인 경우 이 노드를 만드는데 사용된 룰번호.
 }  ty_tree_node;
 
-// LR 파서가 사용하는 stack 의 한 원소. 
+// LR 파서가 사용하는 stack 의 한 원소.
 // state 정보를 가진다면: state >= 0 이상(&& symbol_node 는 NULL); 문법심볼 정보라면 state==-1 .
 typedef struct struc_stk_element {
 	int state;	// state 번호를 나타냄.
-	ty_ptr_tree_node symbol_node;	// 문법심볼을 가지는 트리노드에 대한 포인터. 
+	ty_ptr_tree_node symbol_node;	// 문법심볼을 가지는 트리노드에 대한 포인터.
 } ty_stk_element;
 
 /////////// Function prototypes
@@ -142,11 +142,11 @@ int num_recompute = 0; // recompute_list에 저장된 재계산점의 총 수.
 type_recompute a_recompute;
 
 //first 계산에서 이용된는 call history stack. -1 은 더미 값. 초기화 안해도 상관없다.
-int ch_stack[100] = { -1, }; 
+int ch_stack[100] = { -1, };
 int top_ch_stack = -1;		// ch_stack 의 top.
 
 // goto_graph  구조체에 대한 포인터 (이 구조체는 arc list와 state list 의 헤더들을 가짐)
-ty_ptr_goto_graph	Header_goto_graph = NULL;	
+ty_ptr_goto_graph	Header_goto_graph = NULL;
 int total_num_states = 0; // the actual number of states of go-to graph
 int total_num_arcs = 0; // the actual number of arcs
 
@@ -168,7 +168,7 @@ sym get_next_token(FILE * fps)  {
 
 	a_terminal_sym.no = a_tok.kind;	// 단말기호 고유번호
 	// small grammar 의 경우 source program 이 단말기호의 이름을 그대로 이용함.
-	strcpy(a_terminal_sym.str, a_tok.str);	
+	strcpy(a_terminal_sym.str, a_tok.str);
 
 	return a_terminal_sym;
 } // get_next_token
@@ -228,18 +228,18 @@ int same_test_of_two_item_lists ( ty_ptr_item_node list1,  ty_ptr_item_node list
 		return 0 ;	// 길이가 다르면 동일할 수 없음.
 
 	while( p1 ){
-		// check if p1 exists in list2. 
+		// check if p1 exists in list2.
 		p2 = list2 ; // take one item in list2.
 		p1_exists_in_list2 = 0 ; // initially, assume that it does not exist.
-			
+
 		while(p2) { //try to find p1 in list2 by scanning list2 using p2.
 			if(p1->RuleNum == p2->RuleNum && p1->DotNum == p2->DotNum){
 				p1_exists_in_list2 = 1 ; // p1 is found in list2.
 				break;
-			} 
+			}
 
 			p2 = p2->link;
-		} // while. 
+		} // while.
 
 		if ( ! p1_exists_in_list2 )
 			return 0 ; // the two lists are different since an item in list1 does not exist in list2.
@@ -250,7 +250,7 @@ int same_test_of_two_item_lists ( ty_ptr_item_node list1,  ty_ptr_item_node list
 	return 1;	// 모든 test 를 통과함.  1 을 반환.
 } //same_test_of_two_item_lists
 
-//  To_item_list 를  이미 존재하는 모든 state 의 item list와 비교한다. 
+//  To_item_list 를  이미 존재하는 모든 state 의 item list와 비교한다.
 //  같은 것이 발견되면, 이 발견된 state 의 노드 포인터를 반환;
 //  발견이 안되면 To_item_list 를 가지는 새로운 state 를 만들어 등록(state node 를 새로 만들어 맨 뒤에 붙임)하고
 //  이 새 state node 에 대한 포인터를 반환.
@@ -269,7 +269,7 @@ ty_ptr_state_node	add_a_state_node_if_it_does_not_exist
 		if(curr_state->item_cnt != Number_Of_Items){  // cursor 가 가리키는 스테이드의 아이템 리스트의 아이템 수와 다르므로 다음 스테이트로 감.
 			prev_state = curr_state;
 			curr_state		= curr_state->next;
-			continue; 
+			continue;
 		} // if : state node의 item list에 보유하고 있는 item의 개수가 일치 하지 않으면 확인하지 않아도 괜찮습니다.
 
 		int is_same = same_test_of_two_item_lists ( curr_state->first_item, To_item_list) ; // 동일하면 1, 아니면 0 을 받음.
@@ -281,7 +281,7 @@ ty_ptr_state_node	add_a_state_node_if_it_does_not_exist
 		// 두 아이템 리스트가 다른 것으로 판명되었으므로 다음 스테이트 노드로 커서를 옮김.
 		prev_state = curr_state;
 		curr_state = curr_state->next;
-	} // while 
+	} // while
 
 	// state node list 전체를 비교해도 같은 아이템리스트를 가진 스테이드 노드가 발견되지 않았음.
 	// 따라서 새로운 스테이드 노드를 만들어 To_item_list 를 붙이고 이 노드를 스테이트 노드 리스트의 맨 뒤에 추가함.
@@ -293,7 +293,7 @@ ty_ptr_state_node	add_a_state_node_if_it_does_not_exist
 	new_state_node->id	= prev_state-> id + 1;	// state 번호를 부여.
 	new_state_node->next = NULL;
 	prev_state->next	= new_state_node;	// 매단다.
-	 
+
 	// 전역변수 total_num_states 의 크기를 증가시켜줍니다.
 	total_num_states++;
 
@@ -321,28 +321,28 @@ void	add_arc_if_it_does_not_exist(ty_ptr_arc_node *Arc_List_Header, int from_num
 
 	Arc_curr = *Arc_List_Header ;
 	while ( Arc_curr ) 		{
-		if ( Arc_curr->from_state == from_num && Arc_curr->to_state == to_num 
+		if ( Arc_curr->from_state == from_num && Arc_curr->to_state == to_num
 			&& Arc_curr->symbol.kind == Symbol.kind && Arc_curr->symbol.no == Symbol.no)	{
 			same_arc_exists = 1;	// 동일한 아크가 이미 존재함.
 			break;
 		}
 		else {
 			Arc_last = Arc_curr ;
-			Arc_curr = Arc_curr->link ; 
+			Arc_curr = Arc_curr->link ;
 		}
 	} // while
 
 	if (!same_arc_exists) {
-		Arc_last->link = Arc_new;	// 새로운 아크를 매달아 준다.	
+		Arc_last->link = Arc_new;	// 새로운 아크를 매달아 준다.
 		total_num_arcs++;
 	}
 	else
 		free(Arc_new);
 } // add_arc_if_it_does_not_exist ( )
 
-// Make a goto graph. 
+// Make a goto graph.
 // 입력으로 넣을 0 번 스테이트를 받는다.
-// 작업 결과는 state node list 와 arc node list 이다. 
+// 작업 결과는 state node list 와 arc node list 이다.
 // 함수의 맨 마지막 부분에서 이들에 대한 포인터를 전역변수 Header_goto_graph 에 넣는다.
 void	make_goto_graph(ty_ptr_item_node IS_0){
 	// 지역변수 선언
@@ -354,10 +354,10 @@ void	make_goto_graph(ty_ptr_item_node IS_0){
 	ty_ptr_state_node		to_state	= NULL;	    // goto 에 따라 만들 새 state 노드에 대한 포인터.
 	ty_ptr_item_node		To_item_list = NULL;	// goto 에 따라 알아 낸 새로운 item list.
 
-	// 스테이트 0 를 빈 state node list 의 첫 노드에 넣도록 함. 
-	State_Node_List_Header = makeStateNode(); 
-	State_Node_List_Header->id = 0 ; 
-	State_Node_List_Header->item_cnt = length_of_item_list(IS_0) ; 
+	// 스테이트 0 를 빈 state node list 의 첫 노드에 넣도록 함.
+	State_Node_List_Header = makeStateNode();
+	State_Node_List_Header->id = 0 ;
+	State_Node_List_Header->item_cnt = length_of_item_list(IS_0) ;
 	State_Node_List_Header->first_item = IS_0; // item list 의 첫 노드를 가리키게 함.
 	State_Node_List_Header->next = NULL ;
 	total_num_states = 1 ;
@@ -379,8 +379,8 @@ void	make_goto_graph(ty_ptr_item_node IS_0){
 					//  To_item_list 를 새로운 state 로 등록한다 (단, 동일한 것이 존재하지 않는 경우에만).
 					//  다음 함수는 이 작업을 하고, To_item_list 를 가지는 state node 의 포인터를 반환한다.
 					to_state = add_a_state_node_if_it_does_not_exist(State_Node_List_Header, To_item_list);
-					
-					// [next_state, to_state, sym_temp] 아크가 이미 존재하지 않으면 새로운 아크로 추가함. 
+
+					// [next_state, to_state, sym_temp] 아크가 이미 존재하지 않으면 새로운 아크로 추가함.
 					add_arc_if_it_does_not_exist (&Arc_List_Header, next_state->id, to_state->~~ERASED~~, sym_temp);
 				} // if : To_item_list
 			} // for : i_1 : 모든 기호에 대하여 goto 를 수행
@@ -388,7 +388,7 @@ void	make_goto_graph(ty_ptr_item_node IS_0){
 		next_state = next_state->next;
 	} // while : next_state
 
-	// state node list 와 arc list 가 만들어 졌다. 이들을 구조체에 저장하고 이 구조체의 포인터를 
+	// state node list 와 arc list 가 만들어 졌다. 이들을 구조체에 저장하고 이 구조체의 포인터를
 	// 전역변수 Header_goto_graph 에 저장한다.
 	Header_goto_graph = (ty_ptr_goto_graph)malloc(sizeof(ty_goto_graph));
 	Header_goto_graph->first_state = State_Node_List_Header;
@@ -430,7 +430,7 @@ void	printGotoGraph(ty_ptr_goto_graph gsp){
 		fprintf(fpw, "%4d %4d    ", item_list->from_state, item_list->to_state);
 		if (item_list->symbol.kind == 0)
 			strcpy(str, Terminals_list[item_list->symbol.no].str );
-		else 
+		else
 			strcpy(str, Nonterminals_list[item_list->symbol.no].str );
 		fprintf(fpw, "%s \n", str);
 
@@ -465,7 +465,7 @@ int lookUp_nonterminal( char *str) {
 
 int lookUp_terminal(char *str) {
 	int i ;
-	for (i = 0; i < Max_terminal ; i++) 
+	for (i = 0; i < Max_terminal ; i++)
 		if (strcmp(str, Terminals_list[i].str) == 0)
 			return i;
 	return -1;
@@ -474,7 +474,7 @@ int lookUp_terminal(char *str) {
 void read_grammar(char fileName[50]) {
 	FILE *fps;
 	char line[500]; // line buffer
-	char symstr[10]; 
+	char symstr[10];
 	char *ret;
 	int i, k, n_sym, n_rule, i_leftSymbol, i_rightSymbol, i_right, synkind;
 	fps = fopen(fileName, "r" );
@@ -491,7 +491,7 @@ void read_grammar(char fileName[50]) {
 		while (line[i] == ' ' || line[i] == '\t') i++; // skip spaces.
 		if (line[i] == '\n') break;
 		k = 0;
-		while (line[i] != ' ' && line[i] != '\t' && line[i] != '\n') 
+		while (line[i] != ' ' && line[i] != '\t' && line[i] != '\n')
 		{ symstr[k] = line[i]; i++; k++; }
 		symstr[k] = '\0'; // a nonterminal string is finished.
 		strcpy(Nonterminals_list[n_sym].str, symstr);
@@ -507,7 +507,7 @@ void read_grammar(char fileName[50]) {
 		while (line[i] == ' ' || line[i] == '\t') i++; // skip spaces.
 		if (line[i] == '\n') break;
 		k = 0;
-		while (line[i] != ' ' && line[i] != '\t' && line[i] != '\n') 
+		while (line[i] != ' ' && line[i] != '\t' && line[i] != '\n')
 		{ symstr[k] = line[i]; i++; k++; }
 		symstr[k] = '\0'; // a terminal string is finished.
 		strcpy(Terminals_list[n_sym].str, symstr);
@@ -539,7 +539,7 @@ void read_grammar(char fileName[50]) {
 		// take off left symbol of a rule.
 		while (line[i] == ' ' || line[i] == '\t') i++; // skip spaces.
 		k = 0;
-		while (line[i] != ' ' && line[i] != '\t' && line[i] != '\n') 
+		while (line[i] != ' ' && line[i] != '\t' && line[i] != '\n')
 		{ symstr[k] = line[i]; i++; k++; }
 		symstr[k] = '\0'; // a nonterminal string is finished.
 		i_leftSymbol = lookUp_nonterminal(symstr);
@@ -549,22 +549,22 @@ void read_grammar(char fileName[50]) {
 		}
 
 		// left symbol is stored of the rule.
-		rules[n_rule].leftside.kind = 1; rules[n_rule].leftside.no = i_leftSymbol; 
+		rules[n_rule].leftside.kind = 1; rules[n_rule].leftside.no = i_leftSymbol;
 		strcpy(rules[n_rule].leftside.str , symstr);
 
 		// By three lines below, we move to first char of first sym of RHS.
-		while (line[i] != '>') i++; 
-		i++;  
-		while (line[i] == ' ' || line[i] == '\t') i++; 
+		while (line[i] != '>') i++;
+		i++;
+		while (line[i] == ' ' || line[i] == '\t') i++;
 
 		// Collect the symbols of the RHS of the rule.
 		i_right = 0;
 		do { // reading symbols of RHS
 			k = 0;
-			while ( i < strlen(line) && (line[i] != ' ' 
-				&& line[i] != '\t' && line[i] != '\n') ) 
+			while ( i < strlen(line) && (line[i] != ' '
+				&& line[i] != '\t' && line[i] != '\n') )
 			{ symstr[k] = line[i]; i++; k++; }
-			symstr[k] = '\0'; 
+			symstr[k] = '\0';
 			if (strcmp(symstr, "epsilon") == 0) { // this is epsilon rule.
 				rules[n_rule].rleng = 0; // declare that this rule is an epsilon rule.
 				break;
@@ -592,7 +592,7 @@ void read_grammar(char fileName[50]) {
 
 			while (line[i] == ' ' || line[i] == '\t') i++;
 			// 다음 문장에서: i >= strlen(line) is needed in case of eof just after the last line.
-			if (i >= strlen(line) || line[i] == '\n') 
+			if (i >= strlen(line) || line[i] == '\n')
 				break; // finish reading  righthand symbols.
 		} while (1); // loop of reading symbols of RHS.
 
@@ -627,7 +627,7 @@ ty_ptr_item_node	getLastItem ( ty_ptr_item_node it_list ) {
 			return curr;
 		else
 			curr = curr->link;
-	} // while 
+	} // while
 
 	return NULL;
 } // getLastItem ()
@@ -646,7 +646,7 @@ void	itemListPrint(ty_ptr_item_node IS){
 		for(i_0 = 0; i_0 < rules[r_num].rleng; i_0++){
 			if(i_0 == d_num)
 				printf(". ");
-			printf("%s ", rules[r_num].rightside[i_0].kind ? Nonterminals_list[rules[r_num].rightside[i_0].no].str : 
+			printf("%s ", rules[r_num].rightside[i_0].kind ? Nonterminals_list[rules[r_num].rightside[i_0].no].str :
 				Terminals_list[rules[r_num].rightside[i_0].no].str );
 		} // for : i_0
 		if(i_0 == d_num)
@@ -712,13 +712,13 @@ ty_ptr_item_node closure(ty_ptr_item_node IS) {
 		if (d_num >= rules[r_num].rleng) {	// dot 다음에 아무 심볼도 없는 경우.
 			curr = curr->link;	// 다음 item 으로 이동.
 			continue;
-		} else 
+		} else
 			SymAfterDot = rules[r_num].rightside[d_num];	// dot 다음의 심볼
 
 		if (!SymAfterDot.kind){		// 단말기호이면 무시하고 넘어간다.
 			curr = curr->link;
 			continue;
-		} 
+		}
 
 		// SymAfterDot 이 비단말기호이다. SymAfterDot 을 좌측심볼로 가지는 룰마다 아이템을 추가한다.
 		for (i_0 = 0; i_0 < Max_rules; i_0++) {
@@ -768,7 +768,7 @@ ty_ptr_item_node	goto_function( ty_ptr_item_node IS, sym sym_val ){
 
 		if ( d_num >= rules[r_num].rleng ) 		{	// dot 이 맨 끝에 있음. 이 아이템은 무시.
 			curr_item = curr_item->link;
-			continue ; 
+			continue ;
 		}
 
 		SymAfterDot = rules[r_num].rightside[~~ERASED~~];  // dot 바로 뒤 심볼.
@@ -789,16 +789,16 @@ ty_ptr_item_node	goto_function( ty_ptr_item_node IS, sym sym_val ){
 
 		// New_Item 가 이미 존재하면, 넣지 않고 이 아이템 curr_item 처리는 무시한다.
 		if ( is_item_in_itemlist ( Go_To_Result_List, New_Item ) ){
-			free(New_Item);		
-			curr_item = curr_item->link;   
+			free(New_Item);
+			curr_item = curr_item->link;
 			continue;
 		} // if : is_item_in_itemlist ()
-		
+
 		//NewItemNodePtr 를 Go_To_Result_List 의 맨 뒤에 붙인다.
 		if (Go_To_Result_List == NULL) {
 			Go_To_Result_List = New_Item;
 		} else {
-			temp_item = getLastItem( Go_To_Result_List ) ;	
+			temp_item = getLastItem( Go_To_Result_List ) ;
 			temp_item->link = New_Item;		// 마지막 item 이 되도록 붙인다.
 		} // if
 
@@ -896,7 +896,7 @@ int first(sym X) {              // assume X is a nonterminal.
 
 	// push to the stack.
 	top_ch_stack++;
-	ch_stack[top_ch_stack] = X.no;  
+	ch_stack[top_ch_stack] = X.no;
 
 	for (r = 0; r < Max_rules; r++) {
 		if (rules[r].leftside.no != X.no)
@@ -936,7 +936,7 @@ int first(sym X) {              // assume X is a nonterminal.
 					num_recompute++;
 					// 그리고 아래 ||A|| 로 간다.
 				}
-				else {	// Yi 의 first 를 계산한 적이 없다. 
+				else {	// Yi 의 first 를 계산한 적이 없다.
 					first(Yi);	// Yi 의 first 를 계산하여 First_table 에 등록함.
 					if (is_nonterminal_in_stoplist(Yi.no)) {	// Yi가 좌심볼인 재계산점이 있다면,
 						a_recompute.r = r; a_recompute.X = X.no; a_recompute.i = i; a_recompute.Yi = Yi.no;
@@ -969,7 +969,7 @@ int first(sym X) {              // assume X is a nonterminal.
 	return 1;
 } // end of first
 
-// alpha is an arbitrary string of terminals or nonterminals. 
+// alpha is an arbitrary string of terminals or nonterminals.
 // A dummy symbol with kind = -1 must be place at the end as the end marker.
 // length: number of symbols in alpha.
 void first_of_string(sym alpha[], int length, int first_result[]) {
@@ -990,9 +990,9 @@ void first_of_string(sym alpha[], int length, int first_result[]) {
 			for (k = 0; k < Max_terminal; k++)	 // copy first of Yi to first of alpha
 				if (First_table[Yi.no][k] == 1) first_result[k] = 1;
 			if (First_table[Yi.no][Max_terminal] == 0)
-				break; // first of Yi does not have epsilon. So forget remaining part.	
+				break; // first of Yi does not have epsilon. So forget remaining part.
 		}
-	} // for 
+	} // for
 	if (i == length)
 		first_result[Max_terminal] = 1;  // epsilon 을 넣는다.
 } // end of function first_of_string
