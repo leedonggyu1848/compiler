@@ -1,0 +1,8 @@
+  u = 34 * vv ;
+  while ( a >= b && c <= d)  do
+   { x = 11.23 ; 
+     p = 56.42 - sum1  ; } ;
+  xy = val1 + sum* y ;
+  if ( a< b ) then { x = 23 ; p = 9 + y; } ;
+    else y = z+r
+  ;  

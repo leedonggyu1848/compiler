@@ -1,0 +1,3 @@
+prog_start:
+xy = val1
+prog_end:
